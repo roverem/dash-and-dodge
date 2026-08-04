@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://b0xlpfr35hv1t"]
+
+[ext_resource type="Script" uid="uid://c0qi2uped4onf" path="res://player.gd" id="1_e2o6t"]
+[ext_resource type="Texture2D" uid="uid://bs64h1lng1ilg" path="res://icon.svg" id="2_feb5d"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_w1hta"]
+radius = 32.55764
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_fc0e3"]
+vertices = PackedVector2Array(814.27344, 405.1797, 1080.9297, 498.78125, 891.0703, 519.15625, 640.96094, 478.53906, 867.84375, 243.20313, 1127.4375, 253.09375, 813.7422, 391.60156, 344.57813, 569.28906, 283.8203, 314.15625, -16.992188, 99.00781, 77.296875, 56.921875, 200.21875, 185.89844, 261.72656, 708.6406, 187.09375, 604.3281, 333.53906, 554.8828, 564.8672, 339.21875, 204.36719, 169.27344, 1167.1484, 19.34375, 864.52344, 229.21094, 1170.8203, 257.03125)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Array(4, 5, 6, 7), PackedInt32Array(8, 9, 10, 11), PackedInt32Array(7, 6, 0, 3), PackedInt32Array(7, 3, 12), PackedInt32Array(7, 12, 13, 14), PackedInt32Array(14, 13, 8, 15), PackedInt32Array(11, 15, 8), PackedInt32Array(16, 11, 10), PackedInt32Array(16, 10, 17, 18), PackedInt32Array(18, 17, 19, 5), PackedInt32Array(18, 5, 4)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(583, 336, 212, 180, 1181, 268, 1177, 9, 75, 47, -37, 97, 272, 318, 176, 606, 259, 722, 643, 489, 890.7998, 529.25305, 1126, 504, 824, 398, 1166, 247, 891, 217, 347, 556)])
+
+[node name="Game" type="Node" unique_id=2059491860]
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=871427593]
+position = Vector2(120, 184)
+motion_mode = 1
+script = ExtResource("1_e2o6t")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=945081990]
+shape = SubResource("CircleShape2D_w1hta")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=589087624]
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_feb5d")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="Player" unique_id=237366751]
+unique_name_in_owner = true
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+avoidance_enabled = true
+debug_enabled = true
+
+[node name="Timer" type="Timer" parent="Player" unique_id=609021310]
+unique_name_in_owner = true
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=917946616]
+navigation_polygon = SubResource("NavigationPolygon_fc0e3")
+
+[node name="Obstacle" type="Node2D" parent="." unique_id=348802556]
+position = Vector2(303, 372)
+
+[node name="Sprite2D" type="Sprite2D" parent="Obstacle" unique_id=429920855]
+modulate = Color(0.82041854, 0, 0.08129298, 1)
+scale = Vector2(0.3359375, 0.3828125)
+texture = ExtResource("2_feb5d")
+
+[node name="NavigationObstacle2D" type="NavigationObstacle2D" parent="Obstacle" unique_id=1530678060]
+radius = 30.57
+affect_navigation_mesh = true
