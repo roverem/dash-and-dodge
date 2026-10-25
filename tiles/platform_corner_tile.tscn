@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Mesh" uid="uid://bkcdx6pnqurj8" path="res://assets/space/platform_corner.obj" id="1_mesh"]
+
+[node name="PlatformCorner" type="MeshInstance3D"]
+mesh = ExtResource("1_mesh")

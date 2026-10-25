@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bymyym4l5yiuq"]
+
+[ext_resource type="Script" uid="uid://6oigccwlovpf" path="res://laser_ring.gd" id="1_script"]
+[ext_resource type="Material" uid="uid://b7agaythttpsv" path="res://materials/laser_ring.tres" id="2_mat"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_ring"]
+inner_radius = 0.55
+outer_radius = 0.85
+rings = 12
+ring_segments = 24
+
+[node name="LaserRing" type="Node3D" unique_id=1911302528]
+script = ExtResource("1_script")
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=1800582853]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0)
+material_override = ExtResource("2_mat")
+cast_shadow = 0
+mesh = SubResource("TorusMesh_ring")

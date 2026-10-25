@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bu2jm6yfjlwdt"
+path="res://.godot/imported/monorail_trainCargo.obj-fbad1a4ebb64758d768197465d7ad7ff.mesh"
+
+[deps]
+
+files=["res://.godot/imported/monorail_trainCargo.obj-fbad1a4ebb64758d768197465d7ad7ff.mesh"]
+
+source_file="res://assets/space/monorail_trainCargo.obj"
+dest_files=["res://.godot/imported/monorail_trainCargo.obj-fbad1a4ebb64758d768197465d7ad7ff.mesh", "res://.godot/imported/monorail_trainCargo.obj-fbad1a4ebb64758d768197465d7ad7ff.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

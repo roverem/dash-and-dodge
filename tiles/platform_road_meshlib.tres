@@ -1,0 +1,20 @@
+[gd_resource type="MeshLibrary" format=3 uid="uid://8bgn1g6au7xp"]
+
+[ext_resource type="ArrayMesh" uid="uid://be6eupw142m8" path="res://assets/space/platform_straight.obj" id="1_xbjl7"]
+[ext_resource type="ArrayMesh" uid="uid://bkcdx6pnqurj8" path="res://assets/space/platform_corner.obj" id="2_32crj"]
+
+[resource]
+item/0/name = "straight"
+item/0/mesh = ExtResource("1_xbjl7")
+item/0/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/mesh_cast_shadow = 1
+item/0/shapes = []
+item/0/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/0/navigation_layers = 1
+item/1/name = "corner"
+item/1/mesh = ExtResource("2_32crj")
+item/1/mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/1/mesh_cast_shadow = 1
+item/1/shapes = []
+item/1/navigation_mesh_transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+item/1/navigation_layers = 1

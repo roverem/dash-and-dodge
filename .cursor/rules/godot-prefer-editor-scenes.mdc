@@ -1,0 +1,26 @@
+---
+description: Prefer Godot editor scene nodes over runtime code instancing
+alwaysApply: true
+---
+
+# Prefer editor-built Godot scenes
+
+Construct scenes with editor nodes whenever possible. Use as few code instancing as possible.
+
+## Do
+
+- Build hierarchy, meshes, lights, cameras, collision, UI, and materials in `.tscn` / `.tres`
+- Reference child nodes with `$Path` / `%UniqueName`
+- Use `PackedScene.instantiate()` only to spawn reusable packed scenes already authored in the editor
+- Keep scripts for behavior, input, state, and wiring — not for building the tree
+
+## Don't
+
+- `Node.new()` + `add_child()` for lights, cameras, floors, walls, UI panels, MeshInstance3D, CollisionShape3D, WorldEnvironment, or materials that can live in the scene
+- Rebuild static scene structure in `_ready()`
+
+## Allowed code creation
+
+- Spawning packed scenes at runtime (bullets, enemies, player from `ball_ship.tscn`)
+- Truly dynamic one-offs that cannot be known at edit time
+---
