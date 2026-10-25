@@ -27,7 +27,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_mcp_toolkit/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_mcp_toolkit/plugin.cfg", "res://addons/minimize_html_build/plugin.cfg")
 
 [input]
 

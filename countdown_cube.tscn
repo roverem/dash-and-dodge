@@ -4,6 +4,7 @@
 [ext_resource type="Material" path="res://materials/cube_idle.tres" id="2_idle"]
 [ext_resource type="Material" path="res://materials/cube_activated.tres" id="3_active"]
 [ext_resource type="Material" uid="uid://2oo5sx74bg36" path="res://materials/laser_link.tres" id="4_d2epa"]
+[ext_resource type="Material" path="res://materials/debug_arrow.tres" id="5_arrow"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_cube"]
 size = Vector3(1.6, 1.6, 1.6)
@@ -15,12 +16,29 @@ radius = 7.0
 height = 1.0
 radial_segments = 20
 
+[sub_resource type="CylinderMesh" id="CylinderMesh_shaft"]
+top_radius = 0.08
+bottom_radius = 0.08
+height = 2.2
+radial_segments = 10
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_tip"]
+top_radius = 0.01
+bottom_radius = 0.22
+height = 0.55
+radial_segments = 12
+
 [node name="CountdownCube" type="Area3D" unique_id=846518814]
 collision_layer = 0
 monitorable = false
 script = ExtResource("1_script")
+recover_seconds_per_unit = 3.0
 idle_material = ExtResource("2_idle")
 active_material = ExtResource("3_active")
+first_escape_delay = 1.0
+escape_interval = 0.5
+telegraph_time = 0.5
+jump_distance = 5.0
 
 [node name="CubeMesh" type="MeshInstance3D" parent="." unique_id=187278377]
 unique_name_in_owner = true
@@ -49,3 +67,20 @@ material_override = ExtResource("4_d2epa")
 cast_shadow = 0
 extra_cull_margin = 8.0
 mesh = SubResource("CylinderMesh_d2epa")
+
+[node name="DebugArrow" type="Node3D" parent="." unique_id=794745250]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+visible = false
+
+[node name="Shaft" type="MeshInstance3D" parent="DebugArrow" unique_id=1382201972]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_shaft")
+surface_material_override/0 = ExtResource("5_arrow")
+
+[node name="Tip" type="MeshInstance3D" parent="DebugArrow" unique_id=444235337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.45, 0)
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_tip")
+surface_material_override/0 = ExtResource("5_arrow")

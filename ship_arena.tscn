@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://bs0oeapgvj3rb" path="res://ship_arena.gd" id="1_script"]
 [ext_resource type="Material" path="res://materials/arena_floor.tres" id="2_floor"]
 [ext_resource type="Material" path="res://materials/aura_background.tres" id="3_htqer"]
-[ext_resource type="PackedScene" path="res://countdown_cube.tscn" id="5_1teoh"]
+[ext_resource type="PackedScene" uid="uid://68lm2ugdbrte" path="res://mobile_controls.tscn" id="4_hm4ju"]
+[ext_resource type="PackedScene" uid="uid://dfbe503atjto0" path="res://countdown_cube.tscn" id="5_1teoh"]
 [ext_resource type="MeshLibrary" uid="uid://8bgn1g6au7xp" path="res://tiles/platform_road_meshlib.tres" id="10_xbdng"]
 
 [sub_resource type="Environment" id="Environment_main"]
@@ -88,8 +89,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 12)
 unique_name_in_owner = true
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 296.0
-offset_bottom = 120.0
+offset_right = 320.0
+offset_bottom = 156.0
 mouse_filter = 2
 
 [node name="Margin" type="MarginContainer" parent="UI/Panel" unique_id=1509247976]
@@ -118,6 +119,89 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.85, 1, 1)
 
+[node name="TimerLabel" type="Label" parent="UI/Panel/Margin/VBox" unique_id=1188195894]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "Time: 0:00.00"
+
+[node name="EndScreen" type="Control" parent="UI" unique_id=749781006]
+unique_name_in_owner = true
+visible = false
+z_index = 10
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="UI/EndScreen" unique_id=888574270]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.04, 0.08, 0.75)
+
+[node name="Center" type="CenterContainer" parent="UI/EndScreen" unique_id=667524169]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="UI/EndScreen/Center" unique_id=1916597414]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="UI/EndScreen/Center/Card" unique_id=1282990002]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="UI/EndScreen/Center/Card/Margin" unique_id=2004260321]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="EndTitle" type="Label" parent="UI/EndScreen/Center/Card/Margin/VBox" unique_id=280825852]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Course Complete"
+horizontal_alignment = 1
+
+[node name="EndTimeLabel" type="Label" parent="UI/EndScreen/Center/Card/Margin/VBox" unique_id=1691245787]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "Time: 0:00.00"
+horizontal_alignment = 1
+
+[node name="EndCubesLabel" type="Label" parent="UI/EndScreen/Center/Card/Margin/VBox" unique_id=781319154]
+unique_name_in_owner = true
+layout_mode = 2
+text = "All cubes captured"
+horizontal_alignment = 1
+
+[node name="RestartButton" type="Button" parent="UI/EndScreen/Center/Card/Margin/VBox" unique_id=586954881]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Restart"
+
+[node name="MobileControls" parent="UI" unique_id=531652755 instance=ExtResource("4_hm4ju")]
+z_index = 5
+grow_horizontal = 2
+grow_vertical = 2
+force_visible = true
+
 [node name="Road" type="GridMap" parent="." unique_id=1643105392]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 mesh_library = ExtResource("10_xbdng")
@@ -137,6 +221,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 12)
 
 [node name="CubeEast" parent="Cubes" unique_id=1511204728 instance=ExtResource("5_1teoh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 0, -8)
+
+[node name="CubeSouth2" parent="Cubes" unique_id=846518814 instance=ExtResource("5_1teoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.342228, 0, 12)
+
+[node name="CubeSouthEast2" parent="Cubes" unique_id=1788860953 instance=ExtResource("5_1teoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.657772, 0, 12)
+
+[node name="CubeEast2" parent="Cubes" unique_id=464276428 instance=ExtResource("5_1teoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.657772, 0, -8)
+
+[node name="CubeSouth3" parent="Cubes" unique_id=148098716 instance=ExtResource("5_1teoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.342228, 0, 9.077524)
+
+[node name="CubeSouthEast3" parent="Cubes" unique_id=313486038 instance=ExtResource("5_1teoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.657772, 0, 9.077524)
+
+[node name="CubeEast3" parent="Cubes" unique_id=1616950907 instance=ExtResource("5_1teoh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.657772, 0, -10.922476)
 
 [node name="CubeNorthEast" parent="Cubes" unique_id=710561789 instance=ExtResource("5_1teoh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, -28)

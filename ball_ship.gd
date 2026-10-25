@@ -25,8 +25,12 @@ var _last_trail_pos := Vector3.ZERO
 @onready var _mesh: MeshInstance3D = %CraftMesh
 @onready var _trail_spawn: Marker3D = %TrailSpawn
 
+func _ready() -> void:
+	add_to_group("player_ship")
+
 func setup(mesh: Mesh, id: String) -> void:
 	craft_id = id
+	add_to_group("player_ship")
 	if _mesh == null:
 		_mesh = %CraftMesh
 		_visual = %Visual
