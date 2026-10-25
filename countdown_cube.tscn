@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://dfbe503atjto0"]
+
+[ext_resource type="Script" uid="uid://bwh2omfbgl8l7" path="res://countdown_cube.gd" id="1_script"]
+[ext_resource type="Material" path="res://materials/cube_idle.tres" id="2_idle"]
+[ext_resource type="Material" path="res://materials/cube_activated.tres" id="3_active"]
+[ext_resource type="Material" uid="uid://2oo5sx74bg36" path="res://materials/laser_link.tres" id="4_d2epa"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_cube"]
+size = Vector3(1.6, 1.6, 1.6)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_range"]
+radius = 7.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_d2epa"]
+height = 1.0
+radial_segments = 20
+
+[node name="CountdownCube" type="Area3D" unique_id=846518814]
+collision_layer = 0
+monitorable = false
+script = ExtResource("1_script")
+idle_material = ExtResource("2_idle")
+active_material = ExtResource("3_active")
+
+[node name="CubeMesh" type="MeshInstance3D" parent="." unique_id=187278377]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+material_override = ExtResource("2_idle")
+mesh = SubResource("BoxMesh_cube")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=346926675]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("SphereShape3D_range")
+
+[node name="CountdownLabel" type="Label3D" parent="." unique_id=1678024825]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+visible = false
+pixel_size = 0.02
+billboard = 1
+text = "10"
+font_size = 64
+outline_size = 8
+
+[node name="LaserLink" type="MeshInstance3D" parent="." unique_id=2013957614]
+unique_name_in_owner = true
+visible = false
+material_override = ExtResource("4_d2epa")
+cast_shadow = 0
+extra_cull_margin = 8.0
+mesh = SubResource("CylinderMesh_d2epa")

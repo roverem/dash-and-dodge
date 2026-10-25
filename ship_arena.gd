@@ -17,6 +17,8 @@ func _ready() -> void:
 	if not UserData.has_selection():
 		get_tree().change_scene_to_file(SELECT_SCENE)
 		return
+	UserData.cubes_activated_changed.connect(_on_cubes_activated_changed)
+	UserData.reset_run_progress()
 	_spawn_player(UserData.selected_craft_id)
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -44,8 +46,14 @@ func _spawn_player(craft_id: String) -> void:
 	_ship.global_position = _spawn.global_position
 	_ship.setup(mesh, craft_id)
 
-	_hint_label.text = "Drive: WASD / arrows\nEsc — back to ship select"
-	_name_label.text = "Driving: %s" % craft_id
+	_hint_label.text = "Drive: WASD / arrows · stay near cubes to capture\nEsc — back to ship select"
+	_refresh_progress_label()
 	_camera.make_current()
 	_camera.global_position = _ship.global_position + Vector3(0.0, CAMERA_HEIGHT, 8.0)
 	_camera.look_at(_ship.global_position, Vector3.UP)
+
+func _refresh_progress_label() -> void:
+	_name_label.text = "Driving: %s · Cubes: %d" % [UserData.selected_craft_id, UserData.cubes_activated]
+
+func _on_cubes_activated_changed(_count: int) -> void:
+	_refresh_progress_label()
