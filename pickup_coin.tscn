@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://b4pt4sxsypc4v"]
+
+[ext_resource type="Script" uid="uid://b1o5qtadkd6x5" path="res://pickup_coin.gd" id="1_faigh"]
+[ext_resource type="Material" path="res://materials/pickup_coin.tres" id="2_u81i5"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_3guvs"]
+top_radius = 1.1083984
+bottom_radius = 1.1083984
+height = 0.1
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_i420n"]
+radius = 1.3971605
+
+[node name="PickupCoin" type="Area3D" unique_id=1105780522]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+script = ExtResource("1_faigh")
+
+[node name="Visual" type="Node3D" parent="." unique_id=1441877856]
+unique_name_in_owner = true
+
+[node name="CoinMesh" type="MeshInstance3D" parent="Visual" unique_id=378185235]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+material_override = ExtResource("2_u81i5")
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_3guvs")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=584642146]
+shape = SubResource("SphereShape3D_i420n")

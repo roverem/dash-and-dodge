@@ -7,6 +7,8 @@ const PLAYER_GROUP := "player_ship"
 const ARENA_LIMIT := 70.0
 
 @export var countdown_seconds := 10.0
+## Number shown at full time; counts down to 0 over countdown_seconds.
+@export var display_max := 300
 ## Seconds per countdown unit while recovering after the player leaves (0.5 = 2× countdown speed).
 @export var recover_seconds_per_unit := 0.5
 @export var idle_material: Material
@@ -48,8 +50,12 @@ const ARENA_LIMIT := 70.0
 ## Min planar distance (ship center ↔ cube center) so the solid cube stays outside the hull.
 @export var body_clearance := 1.55
 
+const PROGRESS_BAR_WIDTH := 1.805
+
 @onready var _mesh: MeshInstance3D = %CubeMesh
 @onready var _label: Label3D = %CountdownLabel
+@onready var _progress_root: Node3D = %ProgressRoot
+@onready var _progress_fill: MeshInstance3D = %ProgressFill
 @onready var _laser: MeshInstance3D = %LaserLink
 @onready var _debug_arrow: Node3D = %DebugArrow
 @onready var _solid: AnimatableBody3D = $SolidBody
@@ -112,15 +118,50 @@ func _physics_process(delta: float) -> void:
 			_remaining = countdown_seconds
 			_recovering = false
 			_label.visible = false
+			_set_progress_visible(false)
 
 func _process(_delta: float) -> void:
+	_face_progress_to_camera()
 	if _done or not _player_inside:
 		return
 	_update_laser_link()
 
+func _display_value() -> int:
+	if countdown_seconds <= 0.0:
+		return 0
+	var ratio := clampf(_remaining / countdown_seconds, 0.0, 1.0)
+	return clampi(ceili(float(display_max) * ratio), 0, display_max)
+
 func _refresh_countdown_label() -> void:
 	_label.visible = true
-	_label.text = str(clampi(ceili(_remaining), 0, ceili(countdown_seconds)))
+	_label.text = str(_display_value())
+	_set_progress_visible(true)
+	_update_progress_bar()
+
+func _set_progress_visible(visible: bool) -> void:
+	if _progress_root != null:
+		_progress_root.visible = visible
+
+func _update_progress_bar() -> void:
+	if _progress_fill == null:
+		return
+	var ratio := 0.0
+	if countdown_seconds > 0.0:
+		ratio = clampf(_remaining / countdown_seconds, 0.0, 1.0)
+	# Shrink from the right so the left edge stays fixed under the number.
+	_progress_fill.scale = Vector3(ratio, 1.0, 1.0)
+	_progress_fill.position.x = -PROGRESS_BAR_WIDTH * 0.5 * (1.0 - ratio)
+
+func _face_progress_to_camera() -> void:
+	if _progress_root == null or not _progress_root.visible:
+		return
+	var cam := get_viewport().get_camera_3d()
+	if cam == null:
+		return
+	# Same idea as Label3D billboard: lock axes to the camera so the bar
+	# stays screen-aligned instead of yawing toward the ship.
+	var origin := _progress_root.global_position
+	_progress_root.global_transform = Transform3D(cam.global_basis, origin)
 
 func _update_capture_state() -> void:
 	# Poll every physics frame. Relying only on body_entered/exited breaks after
@@ -226,6 +267,7 @@ func _break_link(force_cancel_thrust: bool) -> void:
 	else:
 		_recovering = false
 		_label.visible = false
+		_set_progress_visible(false)
 	if force_cancel_thrust or _escape_phase != EscapePhase.THRUST:
 		_cancel_escape()
 
@@ -435,6 +477,8 @@ func _complete() -> void:
 	_restore_mesh_pose()
 	_label.text = "0"
 	_label.visible = true
+	_set_progress_visible(true)
+	_update_progress_bar()
 	_hide_laser()
 	if active_material != null:
 		_mesh.material_override = active_material
@@ -444,5 +488,7 @@ func _apply_idle_visual() -> void:
 	if idle_material != null:
 		_mesh.material_override = idle_material
 	_label.visible = false
-	_label.text = str(ceili(countdown_seconds))
+	_label.text = str(display_max)
+	_set_progress_visible(false)
+	_update_progress_bar()
 	_restore_mesh_pose()

@@ -5,6 +5,8 @@
 [ext_resource type="Material" path="res://materials/cube_activated.tres" id="3_active"]
 [ext_resource type="Material" uid="uid://2oo5sx74bg36" path="res://materials/laser_link.tres" id="4_d2epa"]
 [ext_resource type="Material" path="res://materials/debug_arrow.tres" id="5_arrow"]
+[ext_resource type="Material" uid="uid://cciqve3rv6w1e" path="res://materials/cube_progress_bg.tres" id="6_bb4tb"]
+[ext_resource type="Material" uid="uid://cn0475d7piavt" path="res://materials/cube_progress_fill.tres" id="7_vigv7"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_cube"]
 size = Vector3(1.6, 1.6, 1.6)
@@ -31,11 +33,18 @@ radial_segments = 12
 [sub_resource type="BoxShape3D" id="BoxShape3D_6gh6m"]
 size = Vector3(1.7417358, 1.635083, 1.7221435)
 
+[sub_resource type="BoxMesh" id="BoxMesh_et8xb"]
+size = Vector3(1.805, 0.4, 0.06)
+
+[sub_resource type="BoxMesh" id="BoxMesh_1a7qb"]
+size = Vector3(1.805, 0.4, 0.06)
+
 [node name="CountdownCube" type="Area3D" unique_id=846518814]
 collision_layer = 0
 collision_mask = 2
 monitorable = false
 script = ExtResource("1_script")
+countdown_seconds = 4.0
 recover_seconds_per_unit = 3.0
 idle_material = ExtResource("2_idle")
 active_material = ExtResource("3_active")
@@ -60,8 +69,7 @@ shape = SubResource("SphereShape3D_range")
 [node name="CountdownLabel" type="Label3D" parent="." unique_id=1678024825]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
-visible = false
-pixel_size = 0.02
+pixel_size = 0.012
 billboard = 1
 text = "10"
 font_size = 64
@@ -101,3 +109,19 @@ sync_to_physics = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SolidBody" unique_id=705847227]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("BoxShape3D_6gh6m")
+
+[node name="ProgressRoot" type="Node3D" parent="." unique_id=1860779216]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.253021, 0)
+
+[node name="ProgressBg" type="MeshInstance3D" parent="ProgressRoot" unique_id=880873145]
+material_override = ExtResource("6_bb4tb")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_et8xb")
+
+[node name="ProgressFill" type="MeshInstance3D" parent="ProgressRoot" unique_id=1000699803]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
+material_override = ExtResource("7_vigv7")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_1a7qb")

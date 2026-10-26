@@ -5,6 +5,7 @@
 [ext_resource type="Material" path="res://materials/aura_background.tres" id="3_htqer"]
 [ext_resource type="PackedScene" uid="uid://68lm2ugdbrte" path="res://mobile_controls.tscn" id="4_hm4ju"]
 [ext_resource type="PackedScene" uid="uid://dfbe503atjto0" path="res://countdown_cube.tscn" id="5_1teoh"]
+[ext_resource type="Script" uid="uid://cqx0635apu1i4" path="res://edge_pickups.gd" id="7_70law"]
 [ext_resource type="MeshLibrary" uid="uid://8bgn1g6au7xp" path="res://tiles/platform_road_meshlib.tres" id="10_xbdng"]
 
 [sub_resource type="Environment" id="Environment_main"]
@@ -196,11 +197,33 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Restart"
 
+[node name="EndChangeShipButton" type="Button" parent="UI/EndScreen/Center/Card/Margin/VBox" unique_id=1669629611]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "Change Ship"
+
 [node name="MobileControls" parent="UI" unique_id=531652755 instance=ExtResource("4_hm4ju")]
 z_index = 5
 grow_horizontal = 2
 grow_vertical = 2
 force_visible = true
+
+[node name="ChangeShipButton" type="Button" parent="UI" unique_id=1165202906]
+unique_name_in_owner = true
+z_index = 20
+custom_minimum_size = Vector2(160, 48)
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -160.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 48.0
+focus_mode = 0
+theme_override_font_sizes/font_size = 18
+text = "Change Ship"
 
 [node name="Road" type="GridMap" parent="." unique_id=1643105392]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
@@ -254,3 +277,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 12)
 
 [node name="CubeCenter" parent="Cubes" unique_id=1652276816 instance=ExtResource("5_1teoh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
+
+[node name="EdgePickups" type="Node3D" parent="." unique_id=345195066]
+script = ExtResource("7_70law")
+coins_per_column = 1

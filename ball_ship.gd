@@ -17,7 +17,10 @@ class_name BallShip
 @export var trail_enabled := true
 
 var craft_id: String = "craft_speederA"
-var _facing := 0.0
+var facing := 0.0
+var follow_camera: Camera3D
+
+var _control
 var _trail_distance := 0.0
 var _last_trail_pos := Vector3.ZERO
 
@@ -27,6 +30,8 @@ var _last_trail_pos := Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("player_ship")
+	if _control == null:
+		_set_control(CraftCatalog.make_control(craft_id))
 
 func setup(mesh: Mesh, id: String) -> void:
 	craft_id = id
@@ -40,41 +45,75 @@ func setup(mesh: Mesh, id: String) -> void:
 	var aabb := mesh.get_aabb()
 	_mesh.position = Vector3(0.0, -aabb.position.y + visual_y, 0.0)
 	_last_trail_pos = _trail_origin()
+	CraftCatalog.apply_to_ship(self, craft_id)
+	_set_control(CraftCatalog.make_control(craft_id))
 
-func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
-	var steer := Input.get_axis("ui_left", "ui_right")
-	var throttle := Input.get_axis("ui_down", "ui_up")
-	if Input.is_physical_key_pressed(KEY_A):
-		steer = -1.0
-	if Input.is_physical_key_pressed(KEY_D):
-		steer = 1.0
-	if Input.is_physical_key_pressed(KEY_W):
-		throttle = 1.0
-	if Input.is_physical_key_pressed(KEY_S):
-		throttle = -1.0
+func set_follow_camera(camera: Camera3D) -> void:
+	follow_camera = camera
 
+func get_follow_camera() -> Camera3D:
+	if follow_camera != null and is_instance_valid(follow_camera):
+		return follow_camera
+	return get_viewport().get_camera_3d()
+
+func forward_vector() -> Vector3:
+	return Vector3(sin(facing), 0.0, cos(facing))
+
+func apply_planar_force(state: PhysicsDirectBodyState3D, force: Vector3) -> void:
+	force.y = 0.0
+	if force.length_squared() < 0.0001:
+		return
 	var planar := Vector3(state.linear_velocity.x, 0.0, state.linear_velocity.z)
 	var speed := planar.length()
-	var steer_rate := steer_speed_still if speed < 1.0 else steer_speed
-	_facing -= steer * steer_rate * state.step
+	if speed > max_speed and planar.normalized().dot(force.normalized()) > 0.0:
+		force *= overspeed_force_scale
+	state.apply_central_force(force)
 
-	var forward := Vector3(sin(_facing), 0.0, cos(_facing))
-	if throttle != 0.0:
-		var force := forward * throttle * accel
-		if speed > max_speed and planar.normalized().dot(force.normalized()) > 0.0:
-			force *= overspeed_force_scale
-		state.apply_central_force(force)
-
+func settle_angular(state: PhysicsDirectBodyState3D) -> void:
 	var av := state.angular_velocity
 	av.x *= angular_settle
 	av.z *= angular_settle
 	state.angular_velocity = av
 
-func _process(_delta: float) -> void:
+func ray_ground(screen_pos: Vector2) -> Variant:
+	var cam := get_follow_camera()
+	if cam == null:
+		return null
+	var origin := cam.project_ray_origin(screen_pos)
+	var dir := cam.project_ray_normal(screen_pos)
+	if absf(dir.y) < 0.0001:
+		return null
+	# Intersect y = ship height plane (arena floor ~0, ship rides slightly above).
+	var plane_y := global_position.y
+	var t := (plane_y - origin.y) / dir.y
+	if t < 0.0:
+		return null
+	return origin + dir * t
+
+func _set_control(control) -> void:
+	if _control != null:
+		_control.teardown()
+	_control = control
+	if _control != null:
+		_control.setup(self)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if _control != null:
+		_control.unhandled_input(event)
+
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if _control != null:
+		_control.physics_tick(state)
+	else:
+		settle_angular(state)
+
+func _process(delta: float) -> void:
+	if _control != null:
+		_control.process(delta)
 	if _visual == null:
 		return
 	_visual.global_position = global_position
-	_visual.rotation = Vector3(0.0, _facing, 0.0)
+	_visual.rotation = Vector3(0.0, facing, 0.0)
 	_update_trail()
 
 func _trail_origin() -> Vector3:
@@ -105,4 +144,4 @@ func _spawn_ring(origin: Vector3) -> void:
 		return
 	parent.add_child(ring)
 	ring.global_position = origin
-	ring.rotation = Vector3(0.0, _facing, 0.0)
+	ring.rotation = Vector3(0.0, facing, 0.0)

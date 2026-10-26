@@ -1,7 +1,7 @@
 extends Node3D
 class_name ShipSelect
 
-const ARENA_SCENE := preload("res://ship_arena.tscn")
+const ARENA_SCENE_PATH := "res://ship_arena.tscn"
 
 @export var selection_overlay: Material
 
@@ -32,7 +32,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _confirm(craft_id: String) -> void:
 	UserData.selected_craft_id = craft_id
-	get_tree().change_scene_to_packed(ARENA_SCENE)
+	get_tree().change_scene_to_file(ARENA_SCENE_PATH)
 
 func _pick_roster(screen_pos: Vector2) -> MeshInstance3D:
 	var origin := _camera.project_ray_origin(screen_pos)
@@ -61,6 +61,7 @@ func _set_selected(ship: MeshInstance3D) -> void:
 	_selected = ship
 	if _selected != null:
 		_selected.material_overlay = selection_overlay
-		_name_label.text = "Selected: %s" % _selected.get_meta("craft_id")
+		var craft_id := str(_selected.get_meta("craft_id"))
+		_name_label.text = "Selected: %s (%s)" % [CraftCatalog.display_name_for(craft_id), craft_id]
 	else:
 		_name_label.text = "Selected: (none)"

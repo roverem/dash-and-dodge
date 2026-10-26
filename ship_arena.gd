@@ -2,8 +2,9 @@ extends Node3D
 class_name ShipArena
 
 const BALL_SHIP_SCENE := preload("res://ball_ship.tscn")
-const SELECT_SCENE := preload("res://ship_select.tscn")
-const ARENA_SCENE := preload("res://ship_arena.tscn")
+## Path strings avoid circular preload with ship_select.gd (empty PackedScene).
+const SELECT_SCENE_PATH := "res://ship_select.tscn"
+const ARENA_SCENE_PATH := "res://ship_arena.tscn"
 ## Explicit preloads so Web "export selected scenes" keeps every craft mesh.
 const CRAFT_MESHES := {
 	"craft_speederA": preload("res://assets/space/craft_speederA.obj"),
@@ -25,7 +26,10 @@ const CAMERA_FOLLOW_LAG := 8.0
 @onready var _end_time_label: Label = %EndTimeLabel
 @onready var _end_cubes_label: Label = %EndCubesLabel
 @onready var _restart_button: Button = %RestartButton
-@onready var _mobile_controls: Control = $UI/MobileControls
+@onready var _change_ship_button: Button = %ChangeShipButton
+@onready var _end_change_ship_button: Button = %EndChangeShipButton
+@onready var _ui: CanvasLayer = $UI
+var _mobile_controls: Control
 
 var _ship: BallShip
 var _elapsed := 0.0
@@ -35,11 +39,13 @@ var _cube_total := 0
 
 func _ready() -> void:
 	if not UserData.has_selection():
-		get_tree().change_scene_to_packed(SELECT_SCENE)
+		get_tree().change_scene_to_file(SELECT_SCENE_PATH)
 		return
 	_cube_total = _count_cubes()
 	_end_screen.visible = false
 	_restart_button.pressed.connect(_on_restart_pressed)
+	_change_ship_button.pressed.connect(_go_to_ship_select)
+	_end_change_ship_button.pressed.connect(_go_to_ship_select)
 	UserData.cubes_activated_changed.connect(_on_cubes_activated_changed)
 	UserData.reset_run_progress()
 	_elapsed = 0.0
@@ -48,12 +54,22 @@ func _ready() -> void:
 	_update_timer_label()
 	_spawn_player(UserData.selected_craft_id)
 
-func _unhandled_input(event: InputEvent) -> void:
-	if _finished:
+func _input(event: InputEvent) -> void:
+	# Use _input (not unhandled) so Esc still works on web / when GUI focus exists.
+	if not event.is_pressed() or event.is_echo():
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
-		get_tree().change_scene_to_packed(SELECT_SCENE)
+	var wants_back := false
+	if event.is_action_pressed("ui_cancel"):
+		wants_back = true
+	elif event is InputEventKey and (event as InputEventKey).keycode == KEY_ESCAPE:
+		wants_back = true
+	if wants_back:
+		_go_to_ship_select()
 		get_viewport().set_input_as_handled()
+
+func _go_to_ship_select() -> void:
+	UserData.clear_selection()
+	get_tree().change_scene_to_file(SELECT_SCENE_PATH)
 
 func _process(delta: float) -> void:
 	if _run_active and not _finished:
@@ -76,7 +92,7 @@ func _spawn_player(craft_id: String) -> void:
 	var mesh: Mesh = CRAFT_MESHES.get(craft_id) as Mesh
 	if mesh == null:
 		push_error("Unknown craft: %s" % craft_id)
-		get_tree().change_scene_to_packed(SELECT_SCENE)
+		get_tree().change_scene_to_file(SELECT_SCENE_PATH)
 		return
 
 	_ship = BALL_SHIP_SCENE.instantiate() as BallShip
@@ -84,16 +100,36 @@ func _spawn_player(craft_id: String) -> void:
 	add_child(_ship)
 	_ship.global_position = _spawn.global_position
 	_ship.setup(mesh, craft_id)
+	_ship.set_follow_camera(_camera)
+	_install_mobile_controls(craft_id)
 
-	_hint_label.text = "Drive: WASD / arrows / on-screen · stay near cubes to capture\nEsc — back to ship select"
+	_hint_label.text = "%s\n%s" % [
+		CraftCatalog.display_name_for(craft_id),
+		CraftCatalog.hint_for(craft_id),
+	]
 	_refresh_progress_label()
 	_camera.make_current()
 	_camera.global_position = _ship.global_position + Vector3(0.0, CAMERA_HEIGHT, 8.0)
 	_camera.look_at(_ship.global_position, Vector3.UP)
 
+func _install_mobile_controls(craft_id: String) -> void:
+	var old := _ui.get_node_or_null("MobileControls")
+	if old != null:
+		old.queue_free()
+	var packed: PackedScene = CraftCatalog.mobile_scene_for(craft_id)
+	if packed == null:
+		_mobile_controls = null
+		return
+	_mobile_controls = packed.instantiate() as Control
+	_mobile_controls.name = "MobileControls"
+	_mobile_controls.z_index = 5
+	_ui.add_child(_mobile_controls)
+
 func _refresh_progress_label() -> void:
-	_name_label.text = "Driving: %s · Cubes: %d / %d" % [
-		UserData.selected_craft_id,
+	var craft := UserData.selected_craft_id
+	_name_label.text = "%s (%s) · Cubes: %d / %d" % [
+		CraftCatalog.display_name_for(craft),
+		craft,
 		UserData.cubes_activated,
 		_cube_total,
 	]
@@ -131,4 +167,4 @@ func _finish_run() -> void:
 
 func _on_restart_pressed() -> void:
 	UserData.reset_run_progress()
-	get_tree().change_scene_to_packed(ARENA_SCENE)
+	get_tree().change_scene_to_file(ARENA_SCENE_PATH)
