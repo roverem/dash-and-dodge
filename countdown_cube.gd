@@ -34,6 +34,16 @@ const ARENA_LIMIT := 70.0
 ## Show a yellow arrow for the hop direction (live aim during telegraph).
 @export var show_debug_arrow := true
 
+@export_group("Attractor")
+## Gently pull the cube toward the player when nearby (tractor-beam feel).
+@export var attractor_enabled := true
+## Planar distance at which the beam starts pulling.
+@export var attractor_range := 10.0
+## Max pull speed (units/sec) at point-blank. Keep low so escape hops still work.
+@export var attractor_speed := 1.6
+## If true, pull fades from full strength at 0 distance to 0 at attractor_range.
+@export var attractor_falloff := true
+
 @onready var _mesh: MeshInstance3D = %CubeMesh
 @onready var _label: Label3D = %CountdownLabel
 @onready var _laser: MeshInstance3D = %LaserLink
@@ -79,6 +89,7 @@ func _physics_process(delta: float) -> void:
 	if _done:
 		return
 	_update_escape(delta)
+	_update_attractor(delta)
 	_update_capture_state()
 	if _player_inside:
 		_recovering = false
@@ -131,6 +142,36 @@ func _planar_distance_to(node: Node3D) -> float:
 	var delta := node.global_position - global_position
 	delta.y = 0.0
 	return delta.length()
+
+func _update_attractor(delta: float) -> void:
+	if not attractor_enabled or attractor_speed <= 0.0 or attractor_range <= 0.0:
+		return
+	# Don't fight the escape hop — pull only when the cube isn't thrusting away.
+	if _escape_phase == EscapePhase.THRUST:
+		return
+	var ship := _find_ship_within(attractor_range)
+	if ship == null:
+		return
+	var to_ship := ship.global_position - global_position
+	to_ship.y = 0.0
+	var dist := to_ship.length()
+	if dist < 0.05:
+		return
+	var strength := 1.0
+	if attractor_falloff:
+		strength = 1.0 - clampf(dist / attractor_range, 0.0, 1.0)
+	if strength <= 0.0:
+		return
+	var step := to_ship / dist * attractor_speed * strength * delta
+	var next := global_position + step
+	next.y = global_position.y
+	global_position = _clamp_to_arena(next)
+
+func _find_ship_within(max_distance: float) -> BallShip:
+	for node in get_tree().get_nodes_in_group(PLAYER_GROUP):
+		if node is BallShip and _planar_distance_to(node as Node3D) <= max_distance:
+			return node as BallShip
+	return null
 
 func _begin_capture(ship: BallShip) -> void:
 	var fresh := not _player_inside
