@@ -28,8 +28,12 @@ bottom_radius = 0.22
 height = 0.55
 radial_segments = 12
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_6gh6m"]
+size = Vector3(1.7417358, 1.635083, 1.7221435)
+
 [node name="CountdownCube" type="Area3D" unique_id=846518814]
 collision_layer = 0
+collision_mask = 2
 monitorable = false
 script = ExtResource("1_script")
 recover_seconds_per_unit = 3.0
@@ -49,7 +53,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 material_override = ExtResource("2_idle")
 mesh = SubResource("BoxMesh_cube")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=346926675]
+[node name="CaptureShape" type="CollisionShape3D" parent="." unique_id=346926675]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("SphereShape3D_range")
 
@@ -87,3 +91,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.45, 0)
 cast_shadow = 0
 mesh = SubResource("CylinderMesh_tip")
 surface_material_override/0 = ExtResource("5_arrow")
+
+[node name="SolidBody" type="AnimatableBody3D" parent="." unique_id=994572330]
+top_level = true
+collision_layer = 4
+collision_mask = 2
+sync_to_physics = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SolidBody" unique_id=705847227]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("BoxShape3D_6gh6m")

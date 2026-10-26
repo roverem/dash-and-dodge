@@ -4,9 +4,11 @@
 [ext_resource type="ArrayMesh" uid="uid://tcpnvr5qaals" path="res://assets/space/craft_speederA.obj" id="2_7oltq"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ball"]
-radius = 0.45
+radius = 0.75
 
 [node name="BallShip" type="RigidBody3D" unique_id=314269639]
+collision_layer = 2
+collision_mask = 5
 mass = 1.2
 can_sleep = false
 continuous_cd = true

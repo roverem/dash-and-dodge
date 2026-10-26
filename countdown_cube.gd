@@ -44,10 +44,15 @@ const ARENA_LIMIT := 70.0
 ## If true, pull fades from full strength at 0 distance to 0 at attractor_range.
 @export var attractor_falloff := true
 
+@export_group("Body")
+## Min planar distance (ship center ↔ cube center) so the solid cube stays outside the hull.
+@export var body_clearance := 1.55
+
 @onready var _mesh: MeshInstance3D = %CubeMesh
 @onready var _label: Label3D = %CountdownLabel
 @onready var _laser: MeshInstance3D = %LaserLink
 @onready var _debug_arrow: Node3D = %DebugArrow
+@onready var _solid: AnimatableBody3D = $SolidBody
 
 var _player_inside := false
 var _recovering := false
@@ -65,14 +70,16 @@ var _mesh_rest_pos := Vector3.ZERO
 var _face_yaw := 0.0
 
 func _ready() -> void:
+	# Capture Area is detection-only; SolidBody child handles ship blocking.
 	collision_layer = 0
-	collision_mask = 1
+	collision_mask = 2 # player layer
 	monitoring = true
 	monitorable = false
 	_remaining = countdown_seconds
 	_mesh_rest_pos = _mesh.position
 	_apply_idle_visual()
 	_setup_laser()
+	_sync_solid_body()
 
 func _setup_laser() -> void:
 	if _laser == null:
@@ -155,23 +162,40 @@ func _update_attractor(delta: float) -> void:
 	var to_ship := ship.global_position - global_position
 	to_ship.y = 0.0
 	var dist := to_ship.length()
-	if dist < 0.05:
+	var clearance := maxf(body_clearance, 0.05)
+	if dist <= clearance:
+		_separate_from_ship(ship)
 		return
 	var strength := 1.0
 	if attractor_falloff:
 		strength = 1.0 - clampf(dist / attractor_range, 0.0, 1.0)
 	if strength <= 0.0:
 		return
-	var step := to_ship / dist * attractor_speed * strength * delta
-	var next := global_position + step
+	var step_len := attractor_speed * strength * delta
+	step_len = minf(step_len, dist - clearance)
+	var next := global_position + to_ship / dist * step_len
 	next.y = global_position.y
-	global_position = _clamp_to_arena(next)
+	_set_cube_position(_clamp_to_arena(next))
 
 func _find_ship_within(max_distance: float) -> BallShip:
 	for node in get_tree().get_nodes_in_group(PLAYER_GROUP):
 		if node is BallShip and _planar_distance_to(node as Node3D) <= max_distance:
 			return node as BallShip
 	return null
+
+func _separate_from_ship(ship: BallShip = null) -> void:
+	if ship == null:
+		ship = _find_ship_within(body_clearance)
+	if ship == null or not is_instance_valid(ship):
+		return
+	var away := global_position - ship.global_position
+	away.y = 0.0
+	if away.length_squared() < 0.0001:
+		away = Vector3(1.0, 0.0, 0.0)
+	var clearance := maxf(body_clearance, 0.05)
+	var next := ship.global_position + away.normalized() * clearance
+	next.y = global_position.y
+	_set_cube_position(_clamp_to_arena(next))
 
 func _begin_capture(ship: BallShip) -> void:
 	var fresh := not _player_inside
@@ -283,6 +307,16 @@ func _clamp_to_arena(pos: Vector3) -> Vector3:
 	pos.z = clampf(pos.z, -ARENA_LIMIT, ARENA_LIMIT)
 	return pos
 
+func _set_cube_position(pos: Vector3) -> void:
+	global_position = pos
+	_sync_solid_body()
+
+func _sync_solid_body() -> void:
+	if _solid == null:
+		return
+	# SolidBody is top_level so parent Area moves don't drag physics automatically.
+	_solid.global_transform = Transform3D(Basis.IDENTITY, global_position)
+
 func _refresh_monitoring() -> void:
 	if _done:
 		return
@@ -327,11 +361,12 @@ func _update_escape(delta: float) -> void:
 			_escape_timer -= delta
 			var u := 1.0 - clampf(_escape_timer / maxf(thrust_time, 0.001), 0.0, 1.0)
 			var eased := 1.0 - pow(1.0 - u, 3.0)
-			global_position = _thrust_from.lerp(_thrust_to, eased)
+			_set_cube_position(_thrust_from.lerp(_thrust_to, eased))
 			_apply_face_pose(0.0, 0.0)
 			_update_debug_arrow(true)
 			if _escape_timer <= 0.0:
-				global_position = _thrust_to
+				_set_cube_position(_thrust_to)
+				_separate_from_ship()
 				_restore_mesh_pose()
 				_update_debug_arrow(false)
 				_refresh_monitoring()
